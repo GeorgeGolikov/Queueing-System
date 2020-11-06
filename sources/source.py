@@ -1,3 +1,7 @@
+from order.order import Order
+from utils import get_cur_time
+
+
 class Source:
     def __init__(self, type_, generation_law, number, amount, orders_amount):
         self.__type = type_
@@ -36,6 +40,8 @@ class Source:
     def get_orders_amount(self):
         return self.__orders_amount
 
-    # def generate_order(self):
-    #     return Order
+    @staticmethod
+    def generate_order(source_number):
+        return Order(source_number, get_cur_time.get_current_time())
+
 
