@@ -1,4 +1,7 @@
 from typing import Any
+from utils.get_cur_time import get_current_time
+from order.order import Order
+from buffering.buffer_placement_manager import BufferPlacementManager
 
 
 class Buffer:
@@ -37,8 +40,36 @@ class Buffer:
 
     def reject_order(self, pos):
         if isinstance(pos, int) and 0 <= pos < self.__volume:
-            self.__orders[pos] = None
+            cur_time = get_current_time()
+            self.__orders[pos].set_time_out(cur_time)
+            self.__orders[pos].set_time_out_of_buffer(cur_time)
+            self.shift_orders(pos)
             self.__rejected_orders_amount += 1
             self.__orders_amount_now -= 1
         else:
             raise IndexError
+
+    def shift_orders(self, pos):
+        ord_am = self.__orders_amount_now
+        if isinstance(pos, int) and 0 <= pos < ord_am:
+            for i in range(pos, ord_am - 1):
+                self.__orders[i] = self.__orders[i+1]
+            self.__orders[ord_am - 1] = None
+        else:
+            raise IndexError
+
+    def add_order(self, order):
+        if isinstance(order, Order):
+            pos = BufferPlacementManager.find_place_in_buffer(self)
+            if pos is not None:
+                self.__orders[pos] = order
+            else:
+                pos_reject = BufferPlacementManager.find_order_to_reject(self, order)
+                if pos_reject is not None:
+                    self.reject_order(pos_reject)
+                    self.__orders[self.__orders_amount_now] = order
+                else:
+                    order.set_time_out(get_current_time())
+                    self.__rejected_orders_amount += 1
+        else:
+            raise TypeError("Given argument is not Order type!")
