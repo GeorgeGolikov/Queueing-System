@@ -14,8 +14,9 @@ class BufferFetchingManager:
         return cls.instance
 
     @staticmethod
-    def get_order_from_buffer(buffer, package_num):
-        if not buffer.is_empty():
+    def get_order_from_buffer(buffer):
+        package_num = BufferFetchingManager.get_highest_prior_package_num(buffer)
+        if package_num != -1:
             package = []
             for order in buffer.get_orders():
                 if order.get_source_number() == package_num:
@@ -41,8 +42,9 @@ class BufferFetchingManager:
             return -1
 
     def send_order_to_worker(self, order):
-        # worker = self.__worker_manager.get_free_worker()
-        # worker.process_order(order)
+        worker = self.__worker_manager.get_free_worker()
+        if worker is not None:
+            worker.process_order(order)
 
     def set_worker_manager(self, worker_manager):
         self.__worker_manager = worker_manager

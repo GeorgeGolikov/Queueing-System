@@ -10,6 +10,10 @@ class Source:
         self.__amount = amount
         self.__orders_amount = orders_amount
 
+    @staticmethod
+    def generate_order(source_number):
+        return Order(source_number, get_cur_time.get_current_time())
+
     def set_type(self, type_):
         self.__type = type_
 
@@ -39,9 +43,3 @@ class Source:
 
     def get_orders_amount(self):
         return self.__orders_amount
-
-    @staticmethod
-    def generate_order(source_number):
-        return Order(source_number, get_cur_time.get_current_time())
-
-

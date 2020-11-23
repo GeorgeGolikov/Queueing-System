@@ -8,9 +8,10 @@ class Worker:
         self.__time_working = time_working
 
     def process_order(self, order):
+        self.set_busy(True)
 
     def notify_free(self):
-        self.__manager.update_free_workers(self.__number)
+        self.__manager.update_free_workers(self.__number, True)
 
     def set_service_law(self, service_law):
         self.__service_law = service_law
