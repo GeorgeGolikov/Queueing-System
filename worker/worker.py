@@ -1,3 +1,6 @@
+from utils.get_time import get_time_working
+
+
 class Worker:
     def __init__(self, service_law, number, amount, manager, busy=False, time_working=0):
         self.__service_law = service_law
@@ -6,11 +9,17 @@ class Worker:
         self.__manager = manager
         self.__busy = busy
         self.__time_working = time_working
+        self.__time_free = 0
 
     def process_order(self, order):
         self.set_busy(True)
+        order.set_time_service_started(self.__time_free)
+        self.__time_free += get_time_working(self.__service_law)
+        order.set_time_service_finished(self.__time_free)
+        order.set_time_out(self.__time_free)
 
     def notify_free(self):
+        self.set_busy(False)
         self.__manager.update_free_workers(self.__number, True)
 
     def set_service_law(self, service_law):
@@ -48,3 +57,9 @@ class Worker:
 
     def get_time_working(self):
         return self.__time_working
+
+    def set_time_free(self, time_free):
+        self.__time_free = time_free
+
+    def get_time_free(self):
+        return self.__time_free

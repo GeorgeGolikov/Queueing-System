@@ -44,6 +44,7 @@ class BufferFetchingManager:
     def send_order_to_worker(self, order):
         worker = self.__worker_manager.get_free_worker()
         if worker is not None:
+            order.set_time_out_of_buffer(worker.get_time_free())
             worker.process_order(order)
 
     def set_worker_manager(self, worker_manager):

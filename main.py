@@ -1,5 +1,5 @@
 import time
 
-for i in range(20):
+for i in range(5):
     print(time.clock())
-    time.sleep(0.001)
+    time.sleep(1)

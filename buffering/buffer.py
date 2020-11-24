@@ -1,5 +1,4 @@
 from typing import Any
-from utils.get_cur_time import get_current_time
 from order.order import Order
 from buffering.buffer_placement_manager import BufferPlacementManager
 
@@ -23,11 +22,10 @@ class Buffer:
     def is_full(self):
         return self.__orders_amount_now == self.__volume
 
-    def reject_order(self, pos):
+    def reject_order(self, pos, time):
         if isinstance(pos, int) and 0 <= pos < self.__volume:
-            cur_time = get_current_time()
-            self.__orders[pos].set_time_out(cur_time)
-            self.__orders[pos].set_time_out_of_buffer(cur_time)
+            self.__orders[pos].set_time_out(time)
+            self.__orders[pos].set_time_out_of_buffer(time)
             self.shift_orders(pos)
             self.__rejected_orders_amount += 1
             self.__orders_amount_now -= 1
@@ -47,14 +45,17 @@ class Buffer:
         if isinstance(order, Order):
             pos = BufferPlacementManager.find_place_in_buffer(self)
             if pos is not None:
+                order.set_time_got_buffered(order.get_time_in())
                 self.__orders[pos] = order
             else:
                 pos_reject = BufferPlacementManager.find_order_to_reject(self, order)
                 if pos_reject is not None:
-                    self.reject_order(pos_reject)
+                    time = order.get_time_in()
+                    self.reject_order(pos_reject, time)
+                    order.set_time_got_buffered(time)
                     self.__orders[self.__orders_amount_now] = order
                 else:
-                    order.set_time_out(get_current_time())
+                    order.set_time_out(order.get_time_in())
                     self.__rejected_orders_amount += 1
         else:
             raise TypeError("Given argument is not Order type!")
