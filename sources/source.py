@@ -1,5 +1,4 @@
-from order.order import Order
-from utils import get_time
+from order.order_generator import order_generator
 
 
 class Source:
@@ -11,11 +10,10 @@ class Source:
         self.__orders_amount = orders_amount
         self.__cur_time = 0
         self.__delay = delay
+        self.__order_generator = order_generator(number, generation_law, delay)
 
-    def generate_order(self, source_number):
-        return Order(source_number, get_time.time_next_order(
-            self.__generation_law, self.__cur_time, self.__delay
-        ))
+    def generate_order(self):
+        return next(self.__order_generator)
 
     def set_type(self, type_):
         self.__type = type_
@@ -58,3 +56,9 @@ class Source:
 
     def get_delay(self):
         return self.__delay
+
+    def set_order_generator(self, order_gen):
+        self.__order_generator = order_gen
+
+    def get_order_generator(self):
+        return self.__order_generator

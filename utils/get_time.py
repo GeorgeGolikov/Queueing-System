@@ -9,6 +9,9 @@ def get_time_working(service_law):
         raise ValueError("I can generate time only exponentially!")
 
 
-def time_next_order(generation_law, cur_time, delay=0):
+def time_next_order(generation_law, delay=0):
     if generation_law == "steady":
-        return cur_time + delay
+        cur_time = 0
+        while True:
+            yield cur_time
+            cur_time += delay
