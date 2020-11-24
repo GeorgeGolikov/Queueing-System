@@ -41,6 +41,7 @@ class Buffer:
         else:
             raise IndexError
 
+    # each order goes through the buffer first, even if we have free workers
     def add_order(self, order):
         if isinstance(order, Order):
             pos = BufferPlacementManager.find_place_in_buffer(self)
