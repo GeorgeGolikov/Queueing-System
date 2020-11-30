@@ -28,7 +28,6 @@ class Buffer:
             self.__orders[pos].set_time_out_of_buffer(time)
             self.shift_orders(pos)
             self.__rejected_orders_amount += 1
-            self.__orders_amount_now -= 1
         else:
             raise IndexError
 
@@ -38,6 +37,7 @@ class Buffer:
             for i in range(pos, ord_am - 1):
                 self.__orders[i] = self.__orders[i+1]
             self.__orders[ord_am - 1] = None
+            self.__orders_amount_now -= 1
         else:
             raise IndexError
 
@@ -47,17 +47,24 @@ class Buffer:
             pos = BufferPlacementManager.find_place_in_buffer(self)
             if pos is not None:
                 order.set_time_got_buffered(order.get_time_in())
+                order.set_pos_in_buffer(pos)
                 self.__orders[pos] = order
+                self.__orders_amount_now += 1
+                return True
             else:
                 pos_reject = BufferPlacementManager.find_order_to_reject(self, order)
                 if pos_reject is not None:
                     time = order.get_time_in()
                     self.reject_order(pos_reject, time)
                     order.set_time_got_buffered(time)
+                    order.set_pos_in_buffer(self.__orders_amount_now)
                     self.__orders[self.__orders_amount_now] = order
+                    self.__orders_amount_now += 1
+                    return True
                 else:
                     order.set_time_out(order.get_time_in())
                     self.__rejected_orders_amount += 1
+                    return False
         else:
             raise TypeError("Given argument is not Order type!")
 

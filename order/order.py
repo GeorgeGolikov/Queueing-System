@@ -7,6 +7,7 @@ class Order:
         self.__time_out_of_buffer = None
         self.__time_service_started = None
         self.__time_service_finished = None
+        self.__pos_in_buffer = None
 
     def get_source_number(self):
         return self.__source_number
@@ -49,3 +50,9 @@ class Order:
 
     def set_time_service_finished(self, time_service_finished):
         self.__time_service_finished = time_service_finished
+
+    def get_pos_in_buffer(self):
+        return self.__pos_in_buffer
+
+    def set_pos_in_buffer(self, pos_in_buffer):
+        self.__pos_in_buffer = pos_in_buffer

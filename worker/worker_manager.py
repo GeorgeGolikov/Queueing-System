@@ -1,30 +1,30 @@
 from typing import Any
 from worker.worker import Worker
 from buffering.buffer import Buffer
+from buffering.buffer_fetching_manager import BufferFetchingManager
 from utils.parse_config import parse_config
 
 
 class WorkerManager:
-    def __init__(self, worker_amount, workers, free_workers, buffer_manager):
+    def __init__(self, worker_amount):
         self.__worker_amount = worker_amount
-        self.__workers = workers
+        self.__workers = None
         self.__ptr_worker_pos = 0
-        self.__free_workers = free_workers
-        self.__buffer_manager = buffer_manager
+        self.__free_workers = None
 
     # Singleton
-    def __new__(cls, worker_amount, workers, free_workers, buffer_manager) -> Any:
+    def __new__(cls, worker_amount) -> Any:
         if not hasattr(cls, 'instance'):
             cls.instance = super(WorkerManager, cls).__new__(
-                cls, worker_amount, workers, free_workers, buffer_manager
+                cls, worker_amount
             )
         return cls.instance
 
-    def generate_workers(self, service_law):
+    def generate_workers(self):
         self.__workers = []
         self.__free_workers = []
         for i in range(self.__worker_amount):
-            self.__workers.append(Worker(service_law, i, self.__worker_amount, self))
+            self.__workers.append(Worker(parse_config("Worker", "service_law"), i, self.__worker_amount, self))
             self.__free_workers.append(True)
         return self.__workers
 
@@ -55,9 +55,13 @@ class WorkerManager:
             raise ValueError("Given arguments aren't int and bool or the values are out of bounds")
 
     def notify_buffer_manager(self):
-        order = self.__buffer_manager.get_order_from_buffer(Buffer(parse_config("Buffer", "volume")))
-        if order is not None:
-            self.__buffer_manager.send_order_to_worker(order)
+        worker = self.get_free_worker()
+        if worker is not None:
+            order = BufferFetchingManager.get_order_from_buffer(Buffer(parse_config("Buffer", "volume")))
+            if order is not None:
+                BufferFetchingManager.send_order_to_worker(order, worker)
+            else:
+                raise RuntimeError("Logical error! Buffer does not have any orders!")
 
     def set_worker_amount(self, worker_amount):
         self.__worker_amount = worker_amount
@@ -82,10 +86,3 @@ class WorkerManager:
 
     def get_free_workers(self):
         return self.__free_workers
-
-    def set_buffer_manager(self, buffer_manager):
-        self.__buffer_manager = buffer_manager
-
-    def get_buffer_manager(self):
-        return self.__buffer_manager
-

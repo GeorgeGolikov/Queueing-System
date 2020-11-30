@@ -1,5 +1,7 @@
 from typing import Any
 import sources.source as source
+from utils.parse_config import parse_config
+from utils.get_time import get_delay
 
 
 class SourceManager:
@@ -15,10 +17,17 @@ class SourceManager:
     def generate_sources(self):
         sources = []
         for i in range(self.__source_amount):
-            s = source.Source
+            s = source.Source(parse_config("Source", "type"), parse_config("Source", "generation_law"), i,
+                              self.__source_amount, get_delay(10))
             sources.append(s)
         return sources
 
     @staticmethod
     def get_order_priority(order):
         return order.get_source_number()
+
+    def set_source_amount(self, source_amount):
+        self.__source_amount = source_amount
+
+    def get_source_amount(self):
+        return self.__source_amount

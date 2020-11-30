@@ -15,3 +15,8 @@ def time_next_order(generation_law, delay=0):
         while True:
             yield cur_time
             cur_time += delay
+
+
+def get_delay(rangee):
+    return random.random()*rangee + 1
+

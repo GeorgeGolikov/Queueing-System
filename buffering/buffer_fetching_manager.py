@@ -4,15 +4,13 @@ from utils.get_order_from_collection import get_oldest_order_in_collection
 
 
 class BufferFetchingManager:
-    def __init__(self):
-        self.__worker_manager = None
-
     # Singleton
     def __new__(cls) -> Any:
         if not hasattr(cls, 'instance'):
             cls.instance = super(BufferFetchingManager, cls).__new__(cls)
         return cls.instance
 
+    # when the order is returned, it is supposed to be removed from the buffer
     @staticmethod
     def get_order_from_buffer(buffer):
         package_num = BufferFetchingManager.get_highest_prior_package_num(buffer)
@@ -22,7 +20,9 @@ class BufferFetchingManager:
                 if order.get_source_number() == package_num:
                     package.append(order)
             # now we have to decide which order in package has the oldest time_got_buffered
-            return get_oldest_order_in_collection(package)
+            order_to_return = get_oldest_order_in_collection(package)
+            buffer.shift_orders(order_to_return.get_pos_in_buffer())
+            return order_to_return
         else:
             return None
 
@@ -41,14 +41,10 @@ class BufferFetchingManager:
         else:
             return -1
 
-    def send_order_to_worker(self, order):
-        worker = self.__worker_manager.get_free_worker()
+    @staticmethod
+    def send_order_to_worker(order, worker):
         if worker is not None:
             order.set_time_out_of_buffer(worker.get_time_free())
             worker.process_order(order)
-
-    def set_worker_manager(self, worker_manager):
-        self.__worker_manager = worker_manager
-
-    def get_worker_manager(self):
-        return self.__worker_manager
+        else:
+            raise RuntimeError("Logical error! Sending order to worker which is None!")
