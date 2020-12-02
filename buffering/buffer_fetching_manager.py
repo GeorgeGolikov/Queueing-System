@@ -17,7 +17,7 @@ class BufferFetchingManager:
         if package_num != -1:
             package = []
             for order in buffer.get_orders():
-                if order.get_source_number() == package_num:
+                if order is not None and order.get_source_number() == package_num:
                     package.append(order)
             # now we have to decide which order in package has the oldest time_got_buffered
             order_to_return = get_oldest_order_in_collection(package)
@@ -35,8 +35,8 @@ class BufferFetchingManager:
             # get priorities of all the orders in a buffer
             orders = buffer.get_orders()
             for order in orders:
-                print(order.get_time_got_buffered())
-                priorities.append(SourceManager.get_order_priority(order))
+                if order is not None:
+                    priorities.append(SourceManager.get_order_priority(order))
 
             return min(priorities)
         else:

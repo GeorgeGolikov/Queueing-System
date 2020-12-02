@@ -1,19 +1,8 @@
 from buffering.buffer import Buffer
-from buffering.buffer_placement_manager import BufferPlacementManager
-from buffering.buffer_fetching_manager import BufferFetchingManager
-from order.order import Order
-from order.order_generator import order_generator
-from sources.source import Source
 from sources.source_manager import SourceManager
-from utils.get_order_from_collection import get_newest_order_in_collection
-from utils.get_order_from_collection import get_oldest_order_in_collection
-from utils.get_time import get_time_working
-from utils.get_time import time_next_order
 from utils.parse_config import parse_config
-from worker.worker import Worker
 from worker.worker_manager import WorkerManager
 
-import random
 import queue
 
 # ==============================
@@ -53,9 +42,8 @@ for i in range(int(parse_config("Iterations", "amount"))):
     # кладём следующую заявку от этого источника на таймлайн
     time_line.put(sources[order_from_tl.get_source_number()].generate_order())
 
+    # все заявки проходят через буфер
     buffer.add_order(order_from_tl)
-    # print(buffer.get_orders()[0].get_time_got_buffered())
 
+    # прибор, если свободен, забирает на обслуживание заявку из буфера
     worker_m.notify_buffer_manager(order_from_tl.get_time_in())
-
-
