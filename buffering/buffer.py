@@ -4,17 +4,24 @@ from buffering.buffer_placement_manager import BufferPlacementManager
 
 
 class Buffer:
-    def __init__(self, volume):
-        self.__volume = volume
-        self.__orders = [None] * volume
-        self.__orders_amount_now = 0
-        self.__rejected_orders_amount = 0
-
     # Singleton
-    def __new__(cls, volume) -> Any:
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(Buffer, cls).__new__(cls, volume)
-        return cls.instance
+    __instance = None
+
+    def __init__(self, volume):
+        if not Buffer.__instance:
+            print(" buffer __init__ method called..")
+            self.__volume = volume
+            self.__orders = [None] * volume
+            self.__orders_amount_now = 0
+            self.__rejected_orders_amount = 0
+        else:
+            print("Instance already created:", self.get_instance(volume))
+
+    @classmethod
+    def get_instance(cls, volume):
+        if not cls.__instance:
+            cls.__instance = Buffer(volume)
+        return cls.__instance
 
     def is_empty(self):
         return self.__orders_amount_now == 0

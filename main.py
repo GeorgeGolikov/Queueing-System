@@ -14,30 +14,48 @@ from worker.worker import Worker
 from worker.worker_manager import WorkerManager
 
 import random
+import queue
 
 # ==============================
 # CREATE BUFFER OBJECTS
 # ==============================
-buffer = Buffer(parse_config("Buffer", "volume"))
+buffer = Buffer.get_instance(int(parse_config("Buffer", "volume")))
 
 # ==============================
 # CREATE SOURCES OBJECTS
 # ==============================
-source_m = SourceManager(parse_config("Source", "amount"))
+source_amount = int(parse_config("Source", "amount"))
+source_m = SourceManager(source_amount)
 sources = source_m.generate_sources()
 
 # ==============================
 # CREATE WORKERS OBJECTS
 # ==============================
-worker_m = WorkerManager(parse_config("Worker", "amount"))
+worker_m = WorkerManager(int(parse_config("Worker", "amount")))
 workers = worker_m.generate_workers()
 
 
-for i in range(parse_config("Iterations", "amount")):
-    order = random.choice(sources).generate_order()
+# Таймлайн - очередь заявок с приоритетом по времени их поступления
+# Абстрактное время в СМО
+time_line = queue.PriorityQueue()
 
-    buffer.add_order(order)
+# положили первые заявки от всех источников в таймлайн
+for i in range(source_amount):
+    order = sources[i].generate_order()
+    print(order.get_time_in())
+    time_line.put(order)
+print("==========================")
 
-    worker_m.notify_buffer_manager(order.get_time_in())
+for i in range(int(parse_config("Iterations", "amount"))):
+    # выбираем первую заявку на таймлайне
+    order_from_tl = time_line.get()
+
+    # кладём следующую заявку от этого источника на таймлайн
+    time_line.put(sources[order_from_tl.get_source_number()].generate_order())
+
+    buffer.add_order(order_from_tl)
+    # print(buffer.get_orders()[0].get_time_got_buffered())
+
+    worker_m.notify_buffer_manager(order_from_tl.get_time_in())
 
 

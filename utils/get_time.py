@@ -11,7 +11,7 @@ def get_time_working(service_law):
 
 def time_next_order(generation_law, delay=0):
     if generation_law == "steady":
-        cur_time = 0
+        cur_time = delay
         while True:
             yield cur_time
             cur_time += delay

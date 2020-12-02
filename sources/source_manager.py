@@ -11,7 +11,7 @@ class SourceManager:
     # Singleton
     def __new__(cls, source_amount=1) -> Any:
         if not hasattr(cls, 'instance'):
-            cls.instance = super(SourceManager, cls).__new__(cls, source_amount)
+            cls.instance = super(SourceManager, cls).__new__(cls)
         return cls.instance
 
     def generate_sources(self):

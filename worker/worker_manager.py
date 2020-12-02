@@ -15,9 +15,7 @@ class WorkerManager:
     # Singleton
     def __new__(cls, worker_amount) -> Any:
         if not hasattr(cls, 'instance'):
-            cls.instance = super(WorkerManager, cls).__new__(
-                cls, worker_amount
-            )
+            cls.instance = super(WorkerManager, cls).__new__(cls)
         return cls.instance
 
     def generate_workers(self):
@@ -30,15 +28,15 @@ class WorkerManager:
 
     # choose device on the ring
     # when the worker is returned, it is supposed that the worker gets busy
-    def get_free_worker(self):
-        if self.__free_workers[self.__ptr_worker_pos]:
+    def get_free_worker(self, cur_time):
+        if self.__workers[self.__ptr_worker_pos].get_time_free() <= cur_time:
             cur_pos = self.__ptr_worker_pos
             self.__free_workers[cur_pos] = False
             self.__ptr_worker_pos = (self.__ptr_worker_pos + 1) % self.__worker_amount
             return self.__workers[cur_pos]
 
         cur_pos = (self.__ptr_worker_pos + 1) % self.__worker_amount
-        while not self.__free_workers[cur_pos] and \
+        while self.__workers[cur_pos].get_time_free() > cur_time and \
                 cur_pos != self.__ptr_worker_pos:
             cur_pos = (cur_pos + 1) % self.__worker_amount
 
@@ -54,14 +52,17 @@ class WorkerManager:
         else:
             raise ValueError("Given arguments aren't int and bool or the values are out of bounds")
 
-    def notify_buffer_manager(self):
-        worker = self.get_free_worker()
-        if worker is not None:
-            order = BufferFetchingManager.get_order_from_buffer(Buffer(parse_config("Buffer", "volume")))
-            if order is not None:
+    def notify_buffer_manager(self, cur_time):
+        buffer = Buffer.get_instance(int(parse_config("Buffer", "volume")))
+        order = BufferFetchingManager.get_order_from_buffer(buffer)
+        if order is not None:
+            worker = self.get_free_worker(cur_time)
+            if worker is not None:
                 BufferFetchingManager.send_order_to_worker(order, worker)
             else:
-                raise RuntimeError("Logical error! Buffer does not have any orders!")
+                buffer.add_order(order)
+        else:
+            raise RuntimeError("Logical error! Buffer does not have any orders!")
 
     def set_worker_amount(self, worker_amount):
         self.__worker_amount = worker_amount

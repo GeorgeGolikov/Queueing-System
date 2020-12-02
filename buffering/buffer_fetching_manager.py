@@ -35,6 +35,7 @@ class BufferFetchingManager:
             # get priorities of all the orders in a buffer
             orders = buffer.get_orders()
             for order in orders:
+                print(order.get_time_got_buffered())
                 priorities.append(SourceManager.get_order_priority(order))
 
             return min(priorities)

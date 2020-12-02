@@ -9,6 +9,23 @@ class Order:
         self.__time_service_finished = None
         self.__pos_in_buffer = None
 
+    # override equality operation for timeline PriorityQueue
+    def __cmp__(self, other):
+        other_time_in = other.get_time_in()
+        if self.__time_in < other_time_in:
+            return -1
+        elif self.__time_in == other_time_in:
+            return 0
+        else:
+            return 1
+
+    # override equality operation for timeline PriorityQueue
+    def __lt__(self, other):
+        if self.__time_in < other.get_time_in():
+            return True
+        else:
+            return False
+
     def get_source_number(self):
         return self.__source_number
 
