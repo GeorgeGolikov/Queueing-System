@@ -8,13 +8,15 @@ class Source:
         self.__number = number
         self.__amount = amount
         self.__orders_amount = 0
+        self.__orders = []
         self.__cur_time = 0
         self.__delay = delay
         self.__order_generator = order_generator(number, generation_law, delay)
 
     def generate_order(self):
+        self.__orders.append(next(self.__order_generator))
         self.__orders_amount += 1
-        return next(self.__order_generator)
+        return self.__orders[self.__orders_amount - 1]
 
     def set_type(self, type_):
         self.__type = type_
@@ -45,6 +47,12 @@ class Source:
 
     def get_orders_amount(self):
         return self.__orders_amount
+
+    def set_orders(self, orders):
+        self.__orders = orders
+
+    def get_orders(self):
+        return self.__orders
 
     def set_cur_time(self, cur_time):
         self.__cur_time = cur_time

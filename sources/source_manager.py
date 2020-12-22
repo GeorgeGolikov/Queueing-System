@@ -1,5 +1,5 @@
 from typing import Any
-import sources.source as source
+from sources.source import Source
 from utils.parse_config import parse_config
 from utils.get_time import get_delay
 
@@ -17,8 +17,8 @@ class SourceManager:
     def generate_sources(self):
         sources = []
         for i in range(self.__source_amount):
-            s = source.Source(parse_config("Source", "type"), parse_config("Source", "generation_law"), i,
-                              self.__source_amount, get_delay(10))
+            s = Source(parse_config("Source", "type"), parse_config("Source", "generation_law"), i,
+                       self.__source_amount, get_delay(10))
             sources.append(s)
         return sources
 

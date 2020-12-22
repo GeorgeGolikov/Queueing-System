@@ -14,9 +14,12 @@ class Worker:
     def process_order(self, order):
         self.set_busy(True)
         order.set_time_service_started(self.__time_free)
-        self.__time_free += get_time_working(self.__service_law)
+        time = get_time_working(self.__service_law)
+        self.__time_working += time
+        self.__time_free += time
         order.set_time_service_finished(self.__time_free)
         order.set_time_out(self.__time_free)
+        print("Func: Reject order, time:", self.__time_free, " , order-time-out: ", order.get_time_out())
 
     def notify_free(self):
         self.set_busy(False)

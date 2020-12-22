@@ -32,6 +32,7 @@ class Buffer:
     def reject_order(self, pos, time):
         if isinstance(pos, int) and 0 <= pos < self.__volume:
             self.__orders[pos].set_time_out(time)
+            print("Func: Reject order, time:", time, " , order-time-out: ", self.__orders[pos].get_time_out())
             self.__orders[pos].set_time_out_of_buffer(time)
             self.shift_orders(pos)
             self.__rejected_orders_amount += 1
@@ -70,6 +71,7 @@ class Buffer:
                     return True
                 else:
                     order.set_time_out(order.get_time_in())
+                    print("Func: Add order, order-time-out: ", order.get_time_out())
                     self.__rejected_orders_amount += 1
                     return False
         else:

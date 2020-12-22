@@ -33,6 +33,7 @@ class WorkerManager:
             cur_pos = self.__ptr_worker_pos
             self.__free_workers[cur_pos] = False
             self.__ptr_worker_pos = (self.__ptr_worker_pos + 1) % self.__worker_amount
+            self.__workers[cur_pos].set_time_free(cur_time)
             return self.__workers[cur_pos]
 
         cur_pos = (self.__ptr_worker_pos + 1) % self.__worker_amount
@@ -43,6 +44,7 @@ class WorkerManager:
         if cur_pos != self.__ptr_worker_pos:
             self.__free_workers[cur_pos] = False
             self.__ptr_worker_pos = (cur_pos + 1) % self.__worker_amount
+            self.__workers[cur_pos].set_time_free(cur_time)
             return self.__workers[cur_pos]
         return None
 
