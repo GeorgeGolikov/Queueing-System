@@ -19,7 +19,6 @@ class Worker:
         self.__time_free += time
         order.set_time_service_finished(self.__time_free)
         order.set_time_out(self.__time_free)
-        print("Func: Reject order, time:", self.__time_free, " , order-time-out: ", order.get_time_out())
 
     def notify_free(self):
         self.set_busy(False)

@@ -84,7 +84,6 @@ class Statistics:
         sum_ = 0
         count_orders = source.get_orders_amount()
         for order in source.get_orders():
-            print(order.get_time_out())
             sum_ += order.get_time_out() - order.get_time_in()
         return sum_ / count_orders if count_orders > 0 else -1
 

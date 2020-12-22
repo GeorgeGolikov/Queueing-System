@@ -56,6 +56,7 @@ class WorkerManager:
 
     def notify_buffer_manager(self, cur_time):
         buffer = Buffer.get_instance(int(parse_config("Buffer", "volume")))
+
         order = BufferFetchingManager.get_order_from_buffer(buffer)
         if order is not None:
             worker = self.get_free_worker(cur_time)
