@@ -1,10 +1,12 @@
 import random
 import math
+from utils.parse_config import parse_config
 
 
 def get_time_working(service_law):
     if service_law == "exp":
-        return math.exp(random.random())
+        exp_arg_range = int(parse_config("Worker", "exp_arg_range"))
+        return math.exp(random.random()*exp_arg_range)
     else:
         raise ValueError("I can generate time only exponentially!")
 

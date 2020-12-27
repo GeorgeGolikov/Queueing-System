@@ -17,8 +17,10 @@ class SourceManager:
     def generate_sources(self):
         sources = []
         for i in range(self.__source_amount):
-            s = Source(parse_config("Source", "type"), parse_config("Source", "generation_law"), i,
-                       self.__source_amount, get_delay(10))
+            s = Source(
+                parse_config("Source", "type"), parse_config("Source", "generation_law"), i,
+                self.__source_amount, get_delay(int(parse_config("Source", "delay_range")))
+            )
             sources.append(s)
         return sources
 
