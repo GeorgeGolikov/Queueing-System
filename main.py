@@ -32,9 +32,7 @@ time_line = queue.PriorityQueue()
 # положили первые заявки от всех источников в таймлайн
 for i in range(source_amount):
     order = sources[i].generate_order()
-    print(order.get_time_in())
     time_line.put(order)
-print("==========================")
 
 for i in range(int(parse_config("Iterations", "amount"))):
     # выбираем первую заявку на таймлайне
@@ -59,6 +57,11 @@ for worker in workers:
     last_times_free.append(worker.get_time_free())
 time_impl_end = max(last_times_free)
 
+# ==============================
+# ВЫВОД СТАТИСТИКИ. РЕЖИМ АВТО
+# ==============================
+Statistics.print_orders_left_buffer(buffer)
+
 # заявки, оставшиеся в буфер к концу реализации, идут в отказ
 while not(buffer.is_empty()):
     buffer.reject_order(0, time_impl_end)
@@ -67,21 +70,11 @@ while not(buffer.is_empty()):
 # ВЫВОД СТАТИСТИКИ. РЕЖИМ АВТО
 # ==============================
 Statistics.print_num_of_orders(sources)
+Statistics.print_num_rejected_orders(sources)
 Statistics.print_reject_probability(sources)
 Statistics.print_average_time_spent_in_system(sources)
 Statistics.print_average_time_spent_in_wait(sources)
+Statistics.print_dispersion_time_in_wait(sources)
 Statistics.print_average_time_spent_in_service(sources)
+Statistics.print_dispersion_time_in_service(sources)
 Statistics.print_worker_use_coef(workers, time_impl_end)
-
-# index = 2
-# print(sources[index].get_orders_amount())
-# count_orders_buffered = 0
-# count_orders_rejected = 0
-# for order in sources[index].get_orders():
-#     time_out_of_buffer = order.get_time_out_of_buffer()
-#     if time_out_of_buffer is not None:
-#         count_orders_buffered += 1
-#     if order.get_time_in() == order.get_time_out():
-#         count_orders_rejected += 1
-# print(count_orders_buffered)
-# print(count_orders_rejected)
