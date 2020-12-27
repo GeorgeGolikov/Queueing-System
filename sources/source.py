@@ -16,6 +16,7 @@ class Source:
     def generate_order(self):
         self.__orders.append(next(self.__order_generator))
         self.__orders_amount += 1
+        self.__orders[self.__orders_amount - 1].set_number(self.__orders_amount - 1)
         return self.__orders[self.__orders_amount - 1]
 
     def set_type(self, type_):

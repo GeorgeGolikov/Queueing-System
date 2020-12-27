@@ -6,6 +6,8 @@ from mystatistics.statistics import Statistics
 
 import queue
 
+AUTO_MODE = parse_config("Mode", "auto").__str__()
+
 # ==============================
 # CREATE BUFFER OBJECTS
 # ==============================
@@ -34,9 +36,16 @@ for i in range(source_amount):
     order = sources[i].generate_order()
     time_line.put(order)
 
+# ==============================
+# ВЫВОД СТАТИСТИКИ. РЕЖИМ ПОШАГОВЫЙ
+# ==============================
+if AUTO_MODE == 'False':
+    Statistics.print_everything_step(sources, buffer, workers, 0)
+
 for i in range(int(parse_config("Iterations", "amount"))):
     # выбираем первую заявку на таймлайне
     order_from_tl = time_line.get()
+    cur_time = order_from_tl.get_time_in()
 
     # кладём следующую заявку от этого источника на таймлайн
     time_line.put(sources[order_from_tl.get_source_number()].generate_order())
@@ -44,12 +53,40 @@ for i in range(int(parse_config("Iterations", "amount"))):
     # все заявки проходят через буфер
     buffer.add_order(order_from_tl)
 
+    # ==============================
+    # ВЫВОД СТАТИСТИКИ. РЕЖИМ ПОШАГОВЫЙ
+    # ==============================
+    if AUTO_MODE == 'False':
+        Statistics.print_everything_step(sources, buffer, workers, cur_time)
+
     # прибор, если свободен, забирает на обслуживание заявку из буфера
-    worker_m.notify_buffer_manager(order_from_tl.get_time_in())
+    worker_m.notify_buffer_manager(cur_time)
+
+    # ==============================
+    # ВЫВОД СТАТИСТИКИ. РЕЖИМ ПОШАГОВЫЙ
+    # ==============================
+    if AUTO_MODE == 'False':
+        Statistics.print_everything_step(sources, buffer, workers, cur_time)
+
 while not(time_line.empty()):
     order_from_tl = time_line.get()
+    cur_time = order_from_tl.get_time_in()
+
     buffer.add_order(order_from_tl)
-    worker_m.notify_buffer_manager(order_from_tl.get_time_in())
+
+    # ==============================
+    # ВЫВОД СТАТИСТИКИ. РЕЖИМ ПОШАГОВЫЙ
+    # ==============================
+    if AUTO_MODE == 'False':
+        Statistics.print_everything_step(sources, buffer, workers, cur_time)
+
+    worker_m.notify_buffer_manager(cur_time)
+
+    # ==============================
+    # ВЫВОД СТАТИСТИКИ. РЕЖИМ ПОШАГОВЫЙ
+    # ==============================
+    if AUTO_MODE == 'False':
+        Statistics.print_everything_step(sources, buffer, workers, cur_time)
 
 # конец реализации - время освобождения последнего прибора
 last_times_free = []
@@ -62,19 +99,11 @@ time_impl_end = max(last_times_free)
 # ==============================
 Statistics.print_orders_left_buffer(buffer)
 
-# заявки, оставшиеся в буфер к концу реализации, идут в отказ
+# заявки, оставшиеся в буфере к концу реализации, идут в отказ
 while not(buffer.is_empty()):
     buffer.reject_order(0, time_impl_end)
 
 # ==============================
 # ВЫВОД СТАТИСТИКИ. РЕЖИМ АВТО
 # ==============================
-Statistics.print_num_of_orders(sources)
-Statistics.print_num_rejected_orders(sources)
-Statistics.print_reject_probability(sources)
-Statistics.print_average_time_spent_in_system(sources)
-Statistics.print_average_time_spent_in_wait(sources)
-Statistics.print_dispersion_time_in_wait(sources)
-Statistics.print_average_time_spent_in_service(sources)
-Statistics.print_dispersion_time_in_service(sources)
-Statistics.print_worker_use_coef(workers, time_impl_end)
+Statistics.print_everything_auto(sources, workers, time_impl_end)

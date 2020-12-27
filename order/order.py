@@ -2,6 +2,7 @@ class Order:
     def __init__(self, source_number, time_in):
         self.__source_number = source_number
         self.__time_in = time_in
+        self.__number = -1
         self.__time_out = None
         self.__time_got_buffered = None
         self.__time_out_of_buffer = None
@@ -37,6 +38,12 @@ class Order:
 
     def set_time_in(self, time_in):
         self.__time_in = time_in
+
+    def get_number(self):
+        return self.__number
+
+    def set_number(self, number):
+        self.__number = number
 
     def get_time_out(self):
         return self.__time_out

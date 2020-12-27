@@ -1,6 +1,10 @@
 class Statistics:
 
     # ==============================
+    # AUTO MODE
+    # ==============================
+
+    # ==============================
     # PRINT METHODS
     # ==============================
 
@@ -126,8 +130,9 @@ class Statistics:
         count = 0
         for order in source.get_orders():
             time_out = order.get_time_out()
-            if order.get_time_in() == time_out or time_out == order.get_time_out_of_buffer():
-                count += 1
+            if time_out is not None:
+                if order.get_time_in() == time_out or time_out == order.get_time_out_of_buffer():
+                    count += 1
         return count
 
     @staticmethod
@@ -190,3 +195,89 @@ class Statistics:
     def get_worker_use_coef(worker, impl_time):
         time_working = worker.get_time_working()
         return time_working / impl_time
+
+    # ==============================
+    # STEP MODE
+    # ==============================
+
+    # ==============================
+    # PRINT METHODS
+    # ==============================
+
+    @staticmethod
+    def print_cur_sources_state(sources):
+        print("========== Sources")
+        print("№  ", "Time generated  ", "Orders number  ", "Rejected orders number")
+        for source in sources:
+            orders = source.get_orders()
+            print(
+                source.get_number(), "  ", "%.4f" % orders[-1].get_time_in(), "          ",
+                source.get_orders_amount(), "             ", Statistics.get_num_of_rejected_orders(source)
+            )
+        print("==========")
+
+    @staticmethod
+    def print_cur_buffer_state(buffer):
+        print("========== Buffer")
+        print("№  ", "Time generated  ", "Source №  ", "Order №")
+        volume = buffer.get_volume()
+        orders = buffer.get_orders()
+        for i in range(volume):
+            if orders[i] is not None:
+                print(
+                    i, "  ", "%.4f" % orders[i].get_time_in(), "          ",
+                    orders[i].get_source_number(), "        ", orders[i].get_number()
+                )
+            else:
+                print(i)
+        print("==========")
+
+    @staticmethod
+    def print_cur_workers_state(workers, cur_time):
+        print("========== Workers")
+        print("№  ", "Time free  ", "Time idle  ", "Source №  ", "Order №  ", "Time generated")
+        workers_num = len(workers)
+        for i in range(workers_num):
+            time_idle = cur_time - workers[i].get_time_working()
+            if time_idle < 0:
+                time_idle = 0
+
+            cur_order = workers[i].get_cur_order()
+            # 1)cur_order = None, 2)cur_order.srv_fnshd() < cur_time, 3)>
+
+            if cur_order is None or cur_order.get_time_service_finished() < cur_time:
+                print(
+                    i, "  ", "%.4f" % workers[i].get_time_free(), "    ",
+                             "%.4f" % time_idle
+                )
+            else:
+                print(
+                    i, "  ", "%.4f" % workers[i].get_time_free(), "    ",
+                             "%.4f" % time_idle, "     ", cur_order.get_source_number(),
+                    "        ", cur_order.get_number(), "      ", "%.4f" % cur_order.get_time_in()
+                )
+        print("==========")
+
+    # ==============================
+    # PRINT EVERYTHING METHODS (both auto and step modes)
+    # ==============================
+
+    @staticmethod
+    def print_everything_step(sources, buffer, workers, cur_time):
+        print("=====================================================================")
+        Statistics.print_cur_sources_state(sources)
+        Statistics.print_cur_buffer_state(buffer)
+        Statistics.print_cur_workers_state(workers, cur_time)
+        input("Enter - next step...\n")
+
+    @staticmethod
+    def print_everything_auto(sources, workers, time_impl_end):
+        Statistics.print_num_of_orders(sources)
+        Statistics.print_num_rejected_orders(sources)
+        Statistics.print_reject_probability(sources)
+        Statistics.print_average_time_spent_in_system(sources)
+        Statistics.print_average_time_spent_in_wait(sources)
+        Statistics.print_dispersion_time_in_wait(sources)
+        Statistics.print_average_time_spent_in_service(sources)
+        Statistics.print_dispersion_time_in_service(sources)
+        Statistics.print_worker_use_coef(workers, time_impl_end)

@@ -7,12 +7,14 @@ class Worker:
         self.__number = number
         self.__amount = amount
         self.__manager = manager
+        self.__cur_order = None
         self.__busy = busy
         self.__time_working = time_working
         self.__time_free = 0
 
     def process_order(self, order):
         self.set_busy(True)
+        self.__cur_order = order
         order.set_time_service_started(self.__time_free)
         time = get_time_working(self.__service_law)
         self.__time_working += time
@@ -47,6 +49,12 @@ class Worker:
 
     def get_manager(self):
         return self.__manager
+
+    def set_cur_order(self, cur_order):
+        self.__cur_order = cur_order
+
+    def get_cur_order(self):
+        return self.__cur_order
 
     def set_busy(self, busy):
         self.__busy = busy
