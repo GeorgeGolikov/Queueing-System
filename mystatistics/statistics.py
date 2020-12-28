@@ -235,12 +235,10 @@ class Statistics:
     @staticmethod
     def print_cur_workers_state(workers, cur_time):
         print("========== Workers")
-        print("№  ", "Time free  ", "Time idle  ", "Source №  ", "Order №  ", "Time generated")
+        print("№  ", "Time free  ", "Time work  ", "Source №  ", "Order №  ", "Time generated")
         workers_num = len(workers)
         for i in range(workers_num):
-            time_idle = cur_time - workers[i].get_time_working()
-            if time_idle < 0:
-                time_idle = 0
+            time_work = workers[i].get_time_working()
 
             cur_order = workers[i].get_cur_order()
             # 1)cur_order = None, 2)cur_order.srv_fnshd() < cur_time, 3)>
@@ -248,12 +246,12 @@ class Statistics:
             if cur_order is None or cur_order.get_time_service_finished() < cur_time:
                 print(
                     i, "  ", "%.4f" % workers[i].get_time_free(), "    ",
-                             "%.4f" % time_idle
+                             "%.4f" % time_work
                 )
             else:
                 print(
                     i, "  ", "%.4f" % workers[i].get_time_free(), "    ",
-                             "%.4f" % time_idle, "     ", cur_order.get_source_number(),
+                             "%.4f" % time_work, "     ", cur_order.get_source_number(),
                     "        ", cur_order.get_number(), "      ", "%.4f" % cur_order.get_time_in()
                 )
         print("==========")
