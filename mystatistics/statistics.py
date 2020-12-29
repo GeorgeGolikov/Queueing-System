@@ -256,6 +256,23 @@ class Statistics:
                 )
         print("==========")
 
+    @staticmethod
+    def print_rejected_orders(sources):
+        print("========== Rejected orders")
+        print("№  ", "Source №  ", "Order №  ", "Time generated")
+        count = 0
+        for source in sources:
+            for order in source.get_orders():
+                time_out = order.get_time_out()
+                if time_out is not None:
+                    if order.get_time_in() == time_out or time_out == order.get_time_out_of_buffer():
+                        print(
+                            count, "   ", order.get_source_number(), "        ", order.get_number(),
+                            "        ", "%.4f" % order.get_time_in()
+                        )
+                        count += 1
+        print("==========")
+
     # ==============================
     # PRINT EVERYTHING METHODS (both auto and step modes)
     # ==============================
@@ -266,6 +283,7 @@ class Statistics:
         Statistics.print_cur_sources_state(sources)
         Statistics.print_cur_buffer_state(buffer)
         Statistics.print_cur_workers_state(workers, cur_time)
+        Statistics.print_rejected_orders(sources)
         input("Enter - next step...\n")
 
     @staticmethod
